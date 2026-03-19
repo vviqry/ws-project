@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A real-time global chat interface with a modern, glassmorphic design." />
+    <title>Global Chat - Real-time Messaging</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #0d1117;
+        --glass-bg: rgba(22, 27, 34, 0.65);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-primary: #f0f6fc;
+        --text-secondary: #8b949e;
+        --accent: #58a6ff;
+        --accent-hover: #3182ce;
+        --bubble-bg: #21262d;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-color);
+        background-image: 
+          radial-gradient(circle at 15% 50%, rgba(88, 166, 255, 0.08) 0%, transparent 50%),
+          radial-gradient(circle at 85% 30%, rgba(137, 87, 229, 0.08) 0%, transparent 50%);
+        color: var(--text-primary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .chat-container {
+        width: 100%;
+        max-width: 480px;
+        height: 85vh;
+        max-height: 800px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .chat-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 10;
+        background: rgba(22, 27, 34, 0.4);
+      }
+
+      .online-indicator {
+        width: 10px;
+        height: 10px;
+        background-color: #2ea043;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #2ea043;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0.7); }
+        70% { box-shadow: 0 0 0 6px rgba(46, 160, 67, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0); }
+      }
+
+      .chat-header h1 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .messages-wrapper {
+        flex: 1;
+        padding: 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        scroll-behavior: smooth;
+      }
+
+      .messages-wrapper::-webkit-scrollbar {
+        width: 6px;
+      }
+      .messages-wrapper::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .messages-wrapper::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+      }
+
+      .message {
+        background: var(--bubble-bg);
+        padding: 12px 16px;
+        border-radius: 12px 12px 12px 2px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        max-width: 85%;
+        word-wrap: break-word;
+        align-self: flex-start;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        transform-origin: bottom left;
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+      }
+
+      @keyframes slideIn {
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .input-area {
+        padding: 20px 24px;
+        background: rgba(22, 27, 34, 0.7);
+        border-top: 1px solid var(--glass-border);
+        display: flex;
+        gap: 12px;
+      }
+
+      .input-wrapper {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .message-input {
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 100px;
+        border: 1px solid var(--glass-border);
+        background: rgba(0, 0, 0, 0.2);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      .message-input:focus {
+        border-color: var(--accent);
+        background: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+      }
+
+      .message-input::placeholder {
+        color: var(--text-secondary);
+      }
+
+      .send-btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+      }
+
+      .send-btn:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(88, 166, 255, 0.4);
+      }
+
+      .send-btn:active {
+        transform: translateY(0);
+      }
+
+      .send-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+        margin-left: 2px;
+      }
+      
+      @media (max-width: 480px) {
+        .chat-container {
+          height: 100vh;
+          max-height: 100vh;
+          border-radius: 0;
+          border: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="chat-container">
+      <header class="chat-header">
+        <div class="online-indicator"></div>
+        <h1 id="chat-title">Global Room</h1>
+      </header>
+      
+      <div class="messages-wrapper" id="messages" aria-live="polite">
+        <!-- Messages will be injected here -->
+      </div>
+      
+      <div class="input-area">
+        <label for="msg" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">Type a message</label>
+        <div class="input-wrapper">
+          <input type="text" id="msg" class="message-input" placeholder="Type a message..." autocomplete="off" />
+        </div>
+        <button onclick="send()" class="send-btn" aria-label="Send message">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+    </main>
+
+    <script>
+      const socket = new WebSocket("ws://localhost:8080");
+      const input = document.getElementById("msg");
+      const messagesContainer = document.getElementById("messages");
+
+      socket.onmessage = function (event) {
+        // Read file API supports blob text reading depending on websocket behavior, 
+        // original code was just printing event.data
+        let dataStr = "";
+        
+        const appendMessage = (text) => {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = 'message';
+          messageDiv.textContent = text;
+          messagesContainer.appendChild(messageDiv);
+          // Auto-scroll to bottom
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        };
+
+        if (event.data instanceof Blob) {
+            event.data.text().then(text => appendMessage(text));
+        } else {
+            appendMessage(event.data);
+        }
+      };
+
+      function send() {
+        const message = input.value.trim();
+        if (message) {
+          socket.send(message);
+          input.value = "";
+          input.focus();
+        }
+      }
+
+      // Add enter key support
+      input.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          send();
+        }
+      });
+      
+      // Focus input on load
+      window.onload = () => input.focus();
+    </script>
+  </body>
+</html>
