@@ -235,7 +235,8 @@
     </main>
 
     <script>
-      const socket = new WebSocket("ws://localhost:8080");
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const socket = new WebSocket(`${protocol}//${window.location.host}`);
       const input = document.getElementById("msg");
       const messagesContainer = document.getElementById("messages");
 
